@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Road Safety — Saving Lives Through Technology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="style.css" />
+
+  
+</head>
+<body>
+  
+
+<!-- NAVBAR -->
+
+  
+  <script src="index1.js"></script>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">
+      <div class="nav-logo-box"><i class="fas fa-road"></i></div>
+      <div>
+        <div class="nav-brand-text">Smart Road Safety</div>
+        <div class="nav-brand-sub">Powered by Community</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#video-demo">Demo</a>
+      <a href="driving_simulator.html">Simulator</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-ghost" onclick="showModal('login')">Login</button>
+      <button class="btn-primary" onclick="showModal('register')">Get Started</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><span class="dot"></span> Live Monitoring Active</div>
+      <h1>Crowdsourcing<br /><span>Road Safety</span><br />One Report at a Time</h1>
+      <p>Join thousands making roads safer through real-time hazard reporting, AI-powered alerts, and community-driven data.</p>
+      <div class="hero-cta">
+        <button class="btn-hero" onclick="showModal('register')">
+          <i class="fas fa-arrow-right"></i> Start Reporting
+        </button>
+        <button class="btn-hero-outline" onclick="document.getElementById('video-demo').scrollIntoView({behavior:'smooth'})">
+          Watch Demo
+        </button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-stat-cards">
+        <div class="stat-pill">
+          <div class="stat-num">12<span>K+</span></div>
+          <div class="stat-lbl">Active Reports</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-num">98<span>%</span></div>
+          <div class="stat-lbl">Accuracy Rate</div>
+        </div>
+      </div>
+      <div class="hero-card-main">
+        <div class="hc-header">
+          <div class="hc-title">Live Hazard Map</div>
+          <div class="hc-live"><span class="dot"></span> LIVE</div>
+        </div>
+        <div class="map-mock">
+          <svg class="map-roads" viewBox="0 0 380 180" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="90" x2="380" y2="90" stroke="#2a2a2a" stroke-width="12"/>
+            <line x1="190" y1="0" x2="190" y2="180" stroke="#2a2a2a" stroke-width="12"/>
+            <line x1="0" y1="90" x2="380" y2="90" stroke="#333" stroke-width="2" stroke-dasharray="20,15"/>
+            <line x1="40" y1="0" x2="350" y2="180" stroke="#222" stroke-width="8"/>
+          </svg>
+          <div class="pin pin-red pin1">
+            <div class="pin-dot"></div>
+            <div class="pin-line"></div>
+          </div>
+          <div class="pin pin-yellow pin2">
+            <div class="pin-dot"></div>
+            <div class="pin-line"></div>
+          </div>
+          <div class="pin pin-green pin3">
+            <div class="pin-dot"></div>
+            <div class="pin-line"></div>
+          </div>
+        </div>
+        <div class="alert-list">
+          <div class="alert-item">
+            <div class="alert-icon ai-red"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="alert-text">
+              <div class="alert-title">Pothole — NH-48, Km 14</div>
+              <div class="alert-sub">Confirmed by 8 users</div>
+            </div>
+            <div class="alert-time">2m ago</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon ai-yellow"><i class="fas fa-water"></i></div>
+            <div class="alert-text">
+              <div class="alert-title">Waterlogging — Ring Rd</div>
+              <div class="alert-sub">Moderate severity</div>
+            </div>
+            <div class="alert-time">8m ago</div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon ai-green"><i class="fas fa-check-circle"></i></div>
+            <div class="alert-text">
+              <div class="alert-title">Cleared — MG Road</div>
+              <div class="alert-sub">Pothole repaired</div>
+            </div>
+            <div class="alert-time">1h ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item"><i class="fas fa-circle"></i> 15,000+ Hazards Reported This Month</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> AI-Powered Alert System</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> 500+ Cities Covered Across India</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> Real-Time Community Verification</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> Government API Integration Available</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> 15,000+ Hazards Reported This Month</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> AI-Powered Alert System</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> 500+ Cities Covered Across India</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> Real-Time Community Verification</span>
+    <span class="ticker-item"><i class="fas fa-circle"></i> Government API Integration Available</span>
+  </div>
+</div>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-box">
+      <div class="stat-box-num">50K+</div>
+      <div class="stat-box-lbl">Community Members</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-num">1.2M</div>
+      <div class="stat-box-lbl">Hazards Reported</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-num">98%</div>
+      <div class="stat-box-lbl">Alert Accuracy</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-num">340+</div>
+      <div class="stat-box-lbl">Lives Saved Estimate</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header">
+    <div class="section-label">What We Offer</div>
+    <h2 class="section-title">Everything You Need to<br /><span>Stay Safe on the Road</span></h2>
+    <p class="section-sub">A complete toolkit for community-driven road safety — from reporting to real-time alerts and analytics.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-map-marker-alt"></i></div>
+      <div class="feat-title">Real-Time Hazard Reporting</div>
+      <div class="feat-desc">Report potholes, accidents, waterlogging, and debris in seconds. Geotagged and verified by nearby users instantly.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-bell"></i></div>
+      <div class="feat-title">Smart Proximity Alerts</div>
+      <div class="feat-desc">Get push notifications when a verified hazard is ahead on your route. Our AI predicts risks before you encounter them.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-robot"></i></div>
+      <div class="feat-title">AI-Powered Analysis</div>
+      <div class="feat-desc">Machine learning models identify patterns, predict high-risk zones, and automatically prioritize critical alerts.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-users"></i></div>
+      <div class="feat-title">Community Verification</div>
+      <div class="feat-desc">Reports gain credibility through upvotes. The more people confirm, the higher the alert level — no false alarms.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-chart-bar"></i></div>
+      <div class="feat-title">Analytics Dashboard</div>
+      <div class="feat-desc">Detailed heatmaps and trend data for city planners, traffic authorities, and road maintenance agencies.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="fas fa-car"></i></div>
+      <div class="feat-title">Driving Simulator</div>
+      <div class="feat-desc">Test and train hazard recognition skills in our interactive driving simulator — gamified safety education.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-inner">
+    <div class="section-label">The Process</div>
+    <h2 class="section-title" style="color:white;">How It <span style="color:#f87171;">Works</span></h2>
+    <p class="section-sub">From report to resolution in four simple steps — powered by you.</p>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon"><i class="fas fa-camera"></i></div>
+        <div class="step-title">Spot & Report</div>
+        <div class="step-desc">See a hazard? Tap report. Add a photo, tag the type, and submit in under 10 seconds.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon"><i class="fas fa-check-double"></i></div>
+        <div class="step-title">Community Validates</div>
+        <div class="step-desc">Nearby users confirm the hazard. Multiple confirmations boost the alert level automatically.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon"><i class="fas fa-broadcast-tower"></i></div>
+        <div class="step-title">Alert Broadcast</div>
+        <div class="step-desc">Drivers on the affected route receive real-time push alerts with distance and severity info.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-icon"><i class="fas fa-tools"></i></div>
+        <div class="step-title">Resolution Tracked</div>
+        <div class="step-desc">Authorities are notified. Once fixed, the community marks it resolved and the alert clears.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="video-demo">
+  <div class="demo-wrapper">
+    <div>
+      <div class="demo-video-box">
+        <div class="demo-screen">
+          <div class="demo-screen-inner">
+            <div style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">Live Dashboard Preview</div>
+            <div class="dsb">
+              <div class="dsb-row">
+                <div class="dsb-dot" style="background:#ef4444"></div>
+                <div class="dsb-text">Pothole — Sangli-Miraj Rd</div>
+                <div class="dsb-badge badge-critical">CRITICAL</div>
+              </div>
+            </div>
+            <div class="dsb">
+              <div class="dsb-row">
+                <div class="dsb-dot" style="background:#f59e0b"></div>
+                <div class="dsb-text">Debris — Pune-Bangalore Hwy</div>
+                <div class="dsb-badge badge-warn">WARNING</div>
+              </div>
+            </div>
+            <div class="dsb">
+              <div class="dsb-row">
+                <div class="dsb-dot" style="background:#22c55e"></div>
+                <div class="dsb-text">Cleared — NH-48 Km 12</div>
+                <div class="dsb-badge badge-ok">RESOLVED</div>
+              </div>
+            </div>
+            <div class="dsb" style="margin-top:16px;">
+              <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-bottom:6px;">Reports Today</div>
+              <div style="background:#222;border-radius:4px;height:6px;overflow:hidden;">
+                <div style="background:var(--red);width:72%;height:100%;border-radius:4px;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="font-size:10px;color:rgba(255,255,255,0.3)">0</span>
+                <span style="font-size:10px;color:#f87171;font-weight:700;">142 / 200</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-text">
+      <div class="section-label">Live Demo</div>
+      <h2 class="section-title">See the Dashboard<br /><span>in Action</span></h2>
+      <p class="section-sub">Watch how reports flow in, get verified, and generate alerts in real time — all in one unified command center.</p>
+      <div class="demo-checks">
+        <div class="check-row"><i class="fas fa-check-circle"></i> Real-time report feed with severity levels</div>
+        <div class="check-row"><i class="fas fa-check-circle"></i> Interactive heatmap with route overlay</div>
+        <div class="check-row"><i class="fas fa-check-circle"></i> One-click authority escalation</div>
+        <div class="check-row"><i class="fas fa-check-circle"></i> Resolution tracking & history log</div>
+      </div>
+      <div style="margin-top:32px;">
+        <a href="dashboard.html">
+          <button class="btn-primary" style="padding:12px 28px;font-size:15px;">
+            Open Dashboard <i class="fas fa-arrow-right" style="margin-left:8px;"></i>
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testi-inner">
+    <div class="section-label">Community Voices</div>
+    <h2 class="section-title">People Are Making<br /><span>Roads Safer</span></h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-text">"Got an alert about a flooded underpass 2 km ahead. Took a detour and avoided what could have been a dangerous situation. This app is incredible."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">RK</div>
+          <div>
+            <div class="testi-name">Rajan Kumar</div>
+            <div class="testi-role">Daily Commuter, Pune</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-text">"As a traffic officer, the analytics dashboard helps me identify blackspots and plan patrol routes much more efficiently. Game changer for our department."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">SP</div>
+          <div>
+            <div class="testi-name">Smt. Priya Singh</div>
+            <div class="testi-role">Traffic Inspector, Mumbai</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">★★★★★</div>
+        <div class="testi-text">"Reported a major pothole on Tuesday. By Thursday, the municipal team had fixed it and the report was marked resolved. Never seen action this fast!"</div>
+        <div class="testi-author">
+          <div class="testi-avatar">AJ</div>
+          <div>
+            <div class="testi-name">Aditya Joshi</div>
+            <div class="testi-role">Resident, Sangli</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>Ready to Make Roads Safer?</h2>
+  <p>Join 50,000+ community members already reporting hazards and saving lives.</p>
+  <button class="btn-cta" onclick="showModal('register')">Start Reporting for Free</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-txt">Smart Road Safety</div>
+        <div class="footer-brand-desc">A community-powered platform making Indian roads safer through real-time reporting, AI analytics, and citizen action.</div>
+        <div class="footer-socials">
+          <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-linkedin"></i></a>
+          <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="driving_simulator.html">Simulator</a>
+          <a href="#">Mobile App</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Community</div>
+        <div class="footer-links">
+          <a href="#">Report a Hazard</a>
+          <a href="#">Leaderboard</a>
+          <a href="#">Forums</a>
+          <a href="#">Blog</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Cookie Policy</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Smart Road Safety. All rights reserved.</p>
+      <p>Made with ❤️ for safer roads across India</p>
+    </div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div class="modal-logo">
+      <div class="modal-logo-box"><i class="fas fa-road"></i></div>
+      <div class="modal-logo-txt">Smart Road Safety</div>
+    </div>
+    <div id="msgBanner" class="msg-banner"></div>
+
+    <!-- LOGIN -->
+    <div id="loginPane">
+      <div class="modal-title">Welcome back</div>
+      <div class="modal-sub">Login to your account to continue reporting.</div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" />
+      </div>
+      <button class="form-btn" onclick="doLogin()">Login</button>
+      <div class="modal-switch">Don't have an account? <a onclick="switchPane('register')">Sign up free</a></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerPane" style="display:none;">
+      <div class="modal-title">Create Account</div>
+      <div class="modal-sub">Join the community. Start saving lives.</div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="regName" class="form-input" placeholder="Aditya Joshi" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="regPassword" class="form-input" placeholder="Min 8 characters" />
+      </div>
+      <div class="form-group">
+  <label class="form-label">Phone Number</label>
+  <input type="text" id="regPhone" class="form-input" placeholder="9876543210" />
+</div>
+      <button class="form-btn" onclick="doRegister()">Create Account</button>
+      <div class="modal-switch">Already have an account? <a onclick="switchPane('login')">Login</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- OTP MODAL -->
+
+
+
+</body>
+</html>

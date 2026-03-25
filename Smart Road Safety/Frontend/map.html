@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Map View - Smart Road Safety</title>
+    <link rel="icon" type="image/png" href="/favicon.png"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for Map Styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/SVRKdeZPDW9KcR5Nr4="
+        crossorigin=""/>
+    <style>
+        /* Base Map Styles */
+        #map { height: calc(100vh - 64px); width: 100%; }
+        
+        /* Custom Marker Styles (Simplified Pothole/Report Style) */
+        .report-marker {
+            background-color: #F97316; /* Orange */
+            border: 3px solid #FFF;
+            border-radius: 50% 50% 50% 0; /* Teardrop shape */
+            transform: rotate(-45deg);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* IoT Alert Style (Distinct Circle) */
+        .iot-marker {
+            background-color: #DC2626; /* Red */
+            border: 4px solid #FFF;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #DC2626; /* Glow effect */
+            animation: pulse-glow 1.5s infinite;
+        }
+
+        /* Styles for the inner icon */
+        .icon-inner {
+            transform: rotate(45deg); 
+            color: white; 
+            font-size: 16px; 
+            z-index: 10;
+        }
+        .icon-iot-inner {
+            z-index: 10;
+            color: white;
+            font-size: 14px;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-road text-red-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-800">Smart Road Safety</span>
+                    </div>
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">Dashboard</a>
+                    <a href="reports.html" class="text-gray-600 hover:text-red-600">Report New</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-red-600">Analytics</a>
+                    <a href="map.html" class="text-red-600 font-semibold">Map View</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span id="userName" class="text-gray-700"></span>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Map Container -->
+    <div class="relative pt-16">
+        <!-- Map -->
+        <div id="map"></div>
+
+        <!-- Map Controls Panel -->
+        <div class="absolute top-20 left-4 bg-white rounded-lg shadow-xl p-4 z-[1000] max-w-xs border border-gray-100">
+            <h3 class="font-bold text-lg mb-3 text-red-600"><i class="fas fa-filter mr-2"></i>Report Filters</h3>
+            <p class="text-xs text-gray-500 mb-4">Filters apply only to Crowdsourced Reports.</p>
+            
+            <!-- Category Filter -->
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select id="mapCategoryFilter" onchange="filterMapMarkers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">All Categories</option>
+                    <option value="pothole">Pothole</option>
+                    <option value="accident">Accident</option>
+                    <option value="broken-signal">Broken Signal</option>
+                    <option value="congestion">Congestion</option>
+                    <option value="weather">Weather Hazard</option>
+                    <option value="construction">Construction</option>
+                </select>
+            </div>
+
+            <!-- Severity Filter -->
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                <select id="mapSeverityFilter" onchange="filterMapMarkers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">All Severities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select id="mapStatusFilter" onchange="filterMapMarkers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+
+            <!-- Stats -->
+            <div class="mt-4 pt-4 border-t">
+                <p class="text-sm text-gray-600">Total Reports: <span id="totalMarkers" class="font-bold">0</span></p>
+                <p class="text-sm text-gray-600">Showing Reports: <span id="visibleReports" class="font-bold">0</span></p>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-4 space-y-2">
+                <button onclick="centerMap()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                    <i class="fas fa-crosshairs mr-2"></i>Center on My Location
+                </button>
+                <button onclick="resetFilters()" class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition">
+                    <i class="fas fa-redo mr-2"></i>Reset Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="absolute bottom-4 right-4 bg-white rounded-lg shadow-xl p-4 z-[1000] border border-gray-100">
+            <h4 class="font-bold text-sm mb-2 text-gray-800">Map Legend</h4>
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-red-600 rounded-full mr-2"></div>
+                    <span>IoT Alert (Traffic, Speed, Weather)</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 report-marker mr-2" style="transform: rotate(0deg); border: 2px solid white; border-radius: 50% 50% 50% 0; background-color: #F97316;"></div>
+                    <span class="ml-1">User Reported Hazard (Pothole, Accident)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS (MUST BE AFTER MAP DIV) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nE6A4Bqf9JgV/LpW3U+R4s0W+Q/oA/sR8YF08g5Lg="
+        crossorigin=""></script>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let map;
+        let allReports = [];
+        let markerGroup; 
+        let iotMarkerGroup; 
+        const POLLING_INTERVAL = 10000; // 10 seconds
+
+        // --- AUTH & INITIALIZATION ---
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userData = JSON.parse(user);
+            document.getElementById('userName').textContent = userData.name;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // --- MAP SETUP ---
+        function initMap() {
+            // Default center: Pune, India (for realistic data clustering)
+            map = L.map('map').setView([18.5204, 73.8567], 12); 
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Initialize layer groups BEFORE adding them to the map
+            markerGroup = L.layerGroup().addTo(map); 
+            iotMarkerGroup = L.layerGroup().addTo(map); 
+
+            // 🟢 CRITICAL FIX: Invalidate size in a timeout to ensure CSS has rendered dimensions
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100); 
+
+            // Try to get user's location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    map.setView([userLat, userLng], 13);
+                    
+                    L.marker([userLat, userLng], {
+                        icon: L.divIcon({
+                            className: 'user-location-marker',
+                            html: '<div style="background-color: #3B82F6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
+                            iconSize: [20, 20]
+                        })
+                    }).addTo(map).bindPopup('<b>Your Current Location</b>');
+                });
+            }
+            
+            loadMapData(); 
+            setInterval(loadMapData, POLLING_INTERVAL);
+        }
+
+        // --- DATA FETCHING ---
+        async function fetchData(endpoint, isAuthenticated = true) {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json' };
+            
+            if (isAuthenticated && token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, { headers });
+                if (!response.ok) {
+                    if (response.status === 401 && isAuthenticated) checkAuth(); 
+                    throw new Error(`Failed to fetch data from ${endpoint}. Status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // FIXED: Handle MongoDB response structure explicitly
+                if (endpoint.includes('/reports')) {
+                    const reportsArray = data.reports || []; 
+                    return reportsArray.map(r => ({ ...r, id: r._id || r.id })); 
+                } else if (endpoint.includes('/iot/alerts')) {
+                    return data.alerts || []; 
+                }
+                return data; 
+            } catch (error) {
+                console.error(`Fetch Error for ${endpoint}:`, error);
+                return [];
+            }
+        }
+
+        async function loadMapData() {
+            // 1. Fetch data concurrently
+            const [reportsData, iotAlertsData] = await Promise.all([
+                fetchData('/reports', true),
+                fetchData('/iot/alerts', false) 
+            ]);
+
+            // Filter out reports with missing/invalid coordinates
+            allReports = reportsData.filter(r => 
+                typeof r.latitude === 'number' && typeof r.longitude === 'number' && 
+                r.latitude !== 0 && r.longitude !== 0
+            );
+            
+            document.getElementById('totalMarkers').textContent = allReports.length;
+
+            // 2. Display filtered reports (applies the controls' current settings)
+            filterMapMarkers(); 
+            
+            // 3. Display all IoT alerts (IoT data is always visible)
+            renderIotAlerts(iotAlertsData);
+        }
+
+        // --- MARKER RENDERING ---
+
+        function renderIotAlerts(alerts) {
+            iotMarkerGroup.clearLayers();
+            alerts.forEach(alert => {
+                // Ensure coordinates are valid before creation
+                if (typeof alert.latitude === 'number' && typeof alert.longitude === 'number') {
+                    const marker = createIotMarker(alert);
+                    iotMarkerGroup.addLayer(marker);
+                }
+            });
+        }
+        
+        function renderReports(reports) {
+            markerGroup.clearLayers();
+            reports.forEach(report => {
+                const marker = createReportMarker(report);
+                markerGroup.addLayer(marker);
+            });
+            document.getElementById('visibleReports').textContent = reports.length;
+        }
+        
+        // --- MARKER CREATION UTILITIES ---
+
+        function createIotMarker(alert) {
+             let iconClass;
+             let bgColor = '#DC2626'; // Default Red
+
+             // Determine icon and color based on sensor type
+             if (alert.sensor_type === 'speed') {
+                 iconClass = 'fa-bolt';
+             } else if (alert.sensor_type === 'traffic') {
+                 iconClass = 'fa-traffic-light';
+             } else if (alert.sensor_type === 'weather') {
+                 iconClass = 'fa-cloud-showers-heavy';
+                 bgColor = '#3B82F6'; // Blue for weather
+             } else if (alert.sensor_type === 'vibration') {
+                 iconClass = 'fa-car-crash';
+                 bgColor = '#10B981'; // Teal for impact
+             } else {
+                 iconClass = 'fa-exclamation';
+             }
+
+             const markerIcon = L.divIcon({
+                 className: 'iot-marker',
+                 html: `<div style="background-color: ${bgColor}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px ${bgColor}; display: flex; align-items: center; justify-content: center;"><i class="fas ${iconClass} icon-iot-inner"></i></div>`,
+                 iconSize: [30, 30],
+                 iconAnchor: [15, 15],
+                 popupAnchor: [0, -15]
+             });
+
+             const marker = L.marker([alert.latitude, alert.longitude], { icon: markerIcon });
+             
+             const popupContent = `
+                 <div class="text-sm">
+                     <h3 class="font-bold text-base text-red-700 mb-1">${alert.sensor_type.toUpperCase()} ALERT</h3>
+                     <p>Value: ${alert.value.toFixed(1)}</p>
+                     <p class="text-xs text-gray-500 mt-1">Time: ${formatDate(alert.timestamp)}</p>
+                     <p class="text-xs text-gray-500">Device ID: ${alert.device_id.substring(0, 8)}</p>
+                 </div>
+             `;
+             marker.bindPopup(popupContent, { maxWidth: 200 });
+
+             return marker;
+        }
+
+        function createReportMarker(report) {
+            const color = getSeverityColor(report.severity);
+            const icon = getCategoryIcon(report.category);
+
+            const markerIcon = L.divIcon({
+                className: 'report-marker',
+                html: `
+                    <div style="
+                        background-color: ${color};
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50% 50% 50% 0;
+                        transform: rotate(-45deg);
+                        border: 3px solid white;
+                        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">
+                        <i class="fas ${icon} icon-inner" style="transform: rotate(45deg);"></i>
+                    </div>
+                `,
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            });
+
+            const marker = L.marker([report.latitude, report.longitude], { icon: markerIcon });
+
+            const popupContent = `
+                <div style="min-width: 250px;">
+                    <h3 style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">${report.title}</h3>
+                    ${report.image_url ? `
+                        <img src="http://localhost:5000${report.image_url}" 
+                             style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" onerror="this.style.display='none'">
+                    ` : ''}
+                    <p style="font-size: 14px; color: #4B5563; margin-bottom: 8px;">${report.description}</p>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; font-size: 12px;">
+                        <span style="background-color: ${getCategoryBgColor(report.category)}; padding: 4px 8px; border-radius: 12px;">${report.category}</span>
+                        <span style="background-color: ${getSeverityBgColor(report.severity)}; padding: 4px 8px; border-radius: 12px;">${report.severity}</span>
+                        <span style="background-color: ${getStatusBgColor(report.status)}; padding: 4px 8px; border-radius: 12px;">${report.status}</span>
+                    </div>
+                    <p style="font-size: 12px; color: #6B7280;">
+                        <i class="fas fa-map-marker-alt"></i> ${report.location}
+                    </p>
+                    <p style="font-size: 12px; color: #6B7280;">
+                        <i class="fas fa-user"></i> ${report.user_name}
+                    </p>
+                    <p style="font-size: 12px; color: #6B7280;">
+                        <i class="fas fa-clock"></i> ${formatDate(report.created_at)}
+                    </p>
+                </div>
+            `;
+            marker.bindPopup(popupContent, { maxWidth: 300 });
+
+            return marker;
+        }
+
+
+        // --- FILTERING LOGIC ---
+
+        function filterMapMarkers() {
+            const categoryFilter = document.getElementById('mapCategoryFilter').value;
+            const severityFilter = document.getElementById('mapSeverityFilter').value;
+            const statusFilter = document.getElementById('mapStatusFilter').value;
+
+            const filtered = allReports.filter(report => {
+                const matchCategory = !categoryFilter || report.category === categoryFilter;
+                const matchSeverity = !severityFilter || report.severity === severityFilter;
+                const matchStatus = !statusFilter || report.status === statusFilter;
+                return matchCategory && matchSeverity && matchStatus;
+            });
+
+            renderReports(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('mapCategoryFilter').value = '';
+            document.getElementById('mapSeverityFilter').value = '';
+            document.getElementById('mapStatusFilter').value = '';
+            filterMapMarkers();
+        }
+
+        function centerMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    map.setView([position.coords.latitude, position.coords.longitude], 13);
+                }, () => {
+                    alert('Geolocation failed. Please ensure location services are enabled.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        // --- UTILITIES ---
+
+        function getSeverityColor(severity) {
+            const colors = { 'critical': '#DC2626', 'high': '#F97316', 'medium': '#EAB308', 'low': '#10B981' };
+            return colors[severity] || '#6B7280';
+        }
+
+        function getCategoryIcon(category) {
+            const icons = { 'pothole': 'fa-road', 'accident': 'fa-car-crash', 'broken-signal': 'fa-traffic-light', 'congestion': 'fa-car', 'weather': 'fa-cloud-rain', 'construction': 'fa-hard-hat' };
+            return icons[category] || 'fa-exclamation-triangle';
+        }
+
+        function getCategoryBgColor(category) {
+            const colors = { 'pothole': '#FED7AA', 'accident': '#FECACA', 'broken-signal': '#FEF3C7', 'congestion': '#BFDBFE', 'weather': '#DDD6FE', 'construction': '#E5E7EB' };
+            return colors[category] || '#E5E7EB';
+        }
+
+        function getSeverityBgColor(severity) {
+            const colors = { 'critical': '#FECACA', 'high': '#FED7AA', 'medium': '#FEF3C7', 'low': '#D1FAE5' };
+            return colors[severity] || '#E5E7EB';
+        }
+
+        function getStatusBgColor(status) {
+            const colors = { 'pending': '#FEF3C7', 'in-progress': '#BFDBFE', 'resolved': '#D1FAE5', 'rejected': '#FECACA' };
+            return colors[status] || '#E5E7EB';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            checkAuth();
+            initMap();
+        };
+    </script>
+</body>
+</html>

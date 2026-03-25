@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Smart Road Safety</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-road text-red-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-800">Smart Road Safety</span>
+                    </div>
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">Dashboard</a>
+                    <a href="analytics.html" class="text-red-600 font-semibold">Analytics</a>
+                    <a href="reports.html" class="text-gray-600 hover:text-red-600">All Reports</a>
+                    <a href="map.html" class="text-gray-600 hover:text-red-600">Map View</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span id="userName" class="text-gray-700"></span>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Analytics Dashboard</h1>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
+                <i class="fas fa-file-alt text-3xl mb-3"></i>
+                <p class="text-sm opacity-90">Total Reports</p>
+                <p id="totalReports" class="text-4xl font-bold">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-lg shadow-lg">
+                <i class="fas fa-clock text-3xl mb-3"></i>
+                <p class="text-sm opacity-90">Pending</p>
+                <p id="pendingReports" class="text-4xl font-bold">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-400 to-blue-500 text-white p-6 rounded-lg shadow-lg">
+                <i class="fas fa-spinner text-3xl mb-3"></i>
+                <p class="text-sm opacity-90">In Progress</p>
+                <p id="inProgressReports" class="text-4xl font-bold">0</p>
+            </div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg">
+                <i class="fas fa-check-circle text-3xl mb-3"></i>
+                <p class="text-sm opacity-90">Resolved</p>
+                <p id="resolvedReports" class="text-4xl font-bold">0</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Category Distribution -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold mb-4">Reports by Category</h2>
+                <canvas id="categoryChart"></canvas>
+            </div>
+
+            <!-- Status Distribution -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold mb-4">Reports by Status</h2>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Severity Distribution -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold mb-4">Reports by Severity</h2>
+                <canvas id="severityChart"></canvas>
+            </div>
+
+            <!-- Category Details Table -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold mb-4">Category Breakdown</h2>
+                <div id="categoryTable" class="overflow-auto max-h-80">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Category</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Count</th>
+                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                            <tr>
+                                <td colspan="3" class="px-4 py-8 text-center text-gray-500">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact Metrics -->
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Estimated Impact</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt text-5xl mb-3 opacity-90"></i>
+                    <p class="text-4xl font-bold" id="preventedAccidents">0</p>
+                    <p class="text-sm opacity-90 mt-2">Potential Accidents Prevented</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-heart text-5xl mb-3 opacity-90"></i>
+                    <p class="text-4xl font-bold" id="livesSaved">0</p>
+                    <p class="text-sm opacity-90 mt-2">Estimated Lives Protected</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-users text-5xl mb-3 opacity-90"></i>
+                    <p class="text-4xl font-bold" id="communityReach">0</p>
+                    <p class="text-sm opacity-90 mt-2">Community Members Helped</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold mb-4">Recent Activity Timeline</h2>
+            <div id="activityTimeline" class="space-y-4">
+                <p class="text-gray-500 text-center py-8">Loading activity...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let categoryChart, statusChart, severityChart;
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userData = JSON.parse(user);
+            document.getElementById('userName').textContent = `Welcome, ${userData.name}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        async function loadAnalytics() {
+            try {
+                const [statsRes, reportsRes] = await Promise.all([
+                    fetch(`${API_URL}/stats`),
+                    fetch(`${API_URL}/reports`)
+                ]);
+
+                const stats = await statsRes.json();
+                const reportsData = await reportsRes.json();
+
+                // Update stats
+                document.getElementById('totalReports').textContent = stats.total_reports;
+                document.getElementById('pendingReports').textContent = stats.pending;
+                document.getElementById('inProgressReports').textContent = stats.in_progress;
+                document.getElementById('resolvedReports').textContent = stats.resolved;
+
+                // Calculate impact metrics
+                document.getElementById('preventedAccidents').textContent = Math.floor(stats.resolved * 1.5);
+                document.getElementById('livesSaved').textContent = Math.floor(stats.resolved * 2.3);
+                document.getElementById('communityReach').textContent = Math.floor(stats.total_reports * 150);
+
+                // Create charts
+                createCategoryChart(stats.categories);
+                createStatusChart(stats);
+                createSeverityChart(reportsData.reports);
+                createCategoryTable(stats.categories, stats.total_reports);
+                createActivityTimeline(reportsData.reports);
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        function createCategoryChart(categories) {
+            const ctx = document.getElementById('categoryChart');
+            
+            if (categoryChart) categoryChart.destroy();
+
+            const labels = Object.keys(categories);
+            const data = Object.values(categories);
+            const colors = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#8B5CF6', '#6B7280'];
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(l => l.replace('-', ' ').toUpperCase()),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function createStatusChart(stats) {
+            const ctx = document.getElementById('statusChart');
+            
+            if (statusChart) statusChart.destroy();
+
+            statusChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Resolved'],
+                    datasets: [{
+                        label: 'Number of Reports',
+                        data: [stats.pending, stats.in_progress, stats.resolved],
+                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createSeverityChart(reports) {
+            const ctx = document.getElementById('severityChart');
+            
+            if (severityChart) severityChart.destroy();
+
+            const severityCounts = {
+                critical: 0,
+                high: 0,
+                medium: 0,
+                low: 0
+            };
+
+            reports.forEach(report => {
+                if (severityCounts.hasOwnProperty(report.severity)) {
+                    severityCounts[report.severity]++;
+                }
+            });
+
+            severityChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [
+                            severityCounts.critical,
+                            severityCounts.high,
+                            severityCounts.medium,
+                            severityCounts.low
+                        ],
+                        backgroundColor: ['#DC2626', '#F59E0B', '#FBBF24', '#10B981'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCategoryTable(categories, total) {
+            const tbody = document.getElementById('categoryTableBody');
+            
+            const sortedCategories = Object.entries(categories)
+                .sort((a, b) => b[1] - a[1]);
+
+            tbody.innerHTML = sortedCategories.map(([category, count]) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm capitalize">${category.replace('-', ' ')}</td>
+                        <td class="px-4 py-3 text-sm text-right font-semibold">${count}</td>
+                        <td class="px-4 py-3 text-sm text-right text-gray-600">${percentage}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function createActivityTimeline(reports) {
+            const timeline = document.getElementById('activityTimeline');
+            const recentReports = reports.slice(0, 10);
+
+            if (recentReports.length === 0) {
+                timeline.innerHTML = '<p class="text-gray-500 text-center py-8">No recent activity</p>';
+                return;
+            }
+
+            timeline.innerHTML = recentReports.map((report, index) => `
+                <div class="flex items-start space-x-4 ${index !== recentReports.length - 1 ? 'pb-4 border-b' : ''}">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full ${getSeverityBgColor(report.severity)} flex items-center justify-center">
+                            <i class="fas ${getCategoryIcon(report.category)} text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">${report.title}</p>
+                        <p class="text-sm text-gray-600">${report.location}</p>
+                        <div class="flex items-center space-x-3 mt-2 text-xs">
+                            <span class="px-2 py-1 rounded ${getStatusColor(report.status)}">${report.status}</span>
+                            <span class="px-2 py-1 rounded ${getSeverityColor(report.severity)}">${report.severity}</span>
+                            <span class="text-gray-500">${report.user_name}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'pothole': 'fa-road',
+                'accident': 'fa-car-crash',
+                'broken-signal': 'fa-traffic-light',
+                'congestion': 'fa-car',
+                'weather': 'fa-cloud-rain',
+                'construction': 'fa-hard-hat'
+            };
+            return icons[category] || 'fa-exclamation-triangle';
+        }
+
+        function getSeverityBgColor(severity) {
+            const colors = {
+                'critical': 'bg-red-600',
+                'high': 'bg-orange-500',
+                'medium': 'bg-yellow-500',
+                'low': 'bg-green-500'
+            };
+            return colors[severity] || 'bg-gray-500';
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'in-progress': 'bg-blue-100 text-blue-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'rejected': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getSeverityColor(severity) {
+            const colors = {
+                'critical': 'bg-red-100 text-red-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'medium': 'bg-yellow-100 text-yellow-800',
+                'low': 'bg-green-100 text-green-800'
+            };
+            return colors[severity] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Initialize
+        checkAuth();
+        loadAnalytics();
+
+        // Refresh every minute
+        setInterval(loadAnalytics, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "sj2355194@gmail.com": {
+    "id": "8a5944ad-252d-4965-88cb-d44d17c139e7",
+    "name": "sachin",
+    "email": "sj2355194@gmail.com",
+    "password": "scrypt:32768:8:1$i4G8uNxj7SOypVeP$9a947f6cf5e054b2d200f425ee6da7900b908770bb129db12a1a3d7ec2aee43413ec298ecef17bde0e1398c595002c1992efa58695d5d4380328c50e79fd5131",
+    "phone": "7066771186",
+    "created_at": "2025-10-04T02:58:04.787914"
+  },
+  "sachinjagtap2324@gmail.com": {
+    "id": "6c2bb489-0885-4728-a271-9f888427da5c",
+    "name": "Sachin Jagtap",
+    "email": "sachinjagtap2324@gmail.com",
+    "password": "scrypt:32768:8:1$ZxBPPYU6H5deUBmN$b51036f7e9fb83ae96cfdbea8d351295e3386fab2478bb91f9b6280e0b7d49ea6020b1c55795c74a790228cfe8bafd9de9f92a4acf1fc18e7af66074bd2aa9c6",
+    "phone": "7066771186",
+    "created_at": "2025-10-04T03:04:08.683092"
+  },
+  "machindra.test7@gmail.com": {
+    "id": "23f704aa-6c12-4c21-b079-afa6f0d97897",
+    "name": "Machindra Chitale",
+    "email": "machindra.test7@gmail.com",
+    "password": "scrypt:32768:8:1$0KndSy9bNZumWOfl$bfb63c828466bb3838371ddf75c51e78d0b66994a41a8d8223718b8817fe979244a85a8e245e455893e7679b059433c942bb9413278a65f6b1ad7802d752db66",
+    "phone": "7499823642",
+    "created_at": "2025-10-04T14:03:55.648374"
+  },
+  "sanketpawar@gmail.com": {
+    "id": "e55c77a6-c91d-4a6d-a1dc-f7f5f16e0655",
+    "name": "Sanket Pawar",
+    "email": "sanketpawar@gmail.com",
+    "password": "scrypt:32768:8:1$aOAqEdc8UMDtimNt$cf3f67fbd7adacae96d2c4b78a803e0c727fbb27e7e75f75c6d1a20ab9f1f5fa67afafb7988c25b7e433973f5b3c2cc76a7e7dddbec8d207eea5d32c9df77aed",
+    "phone": "8010503116",
+    "created_at": "2025-10-06T11:33:23.614641"
+  }
+}

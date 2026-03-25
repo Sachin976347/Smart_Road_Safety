@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Road Safety</title>
+    <link rel="icon" type="image/png" href="/favicon.png"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+        .iot-alert-card {
+            background-color: #FEF2F2; /* red-50 */
+            border: 2px solid #F87171; /* red-400 */
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+        /* Custom alert styles for visual distinction */
+        .alert-speed { border-left: 4px solid #F59E0B; background-color: #FFFBEB; } /* Amber */
+        .alert-traffic { border-left: 4px solid #EF4444; background-color: #FEE2E2; } /* Red */
+        .alert-weather { border-left: 4px solid #3B82F6; background-color: #EFF6FF; } /* Blue */
+        .alert-vibration { border-left: 4px solid #10B981; background-color: #E0F7F7; } /* Teal */
+
+        /* Speedometer Styles */
+        .speed-normal { color: #10B981; } /* Green */
+        .speed-warning { color: #F59E0B; } /* Amber */
+        .speed-danger { color: #EF4444; } /* Red */
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-road text-red-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-800">Smart Road Safety</span>
+                    </div>
+                   
+                    <a href="dashboard.html" class="text-red-600 font-semibold">Dashboard</a>
+                    <a href="reports.html" class="text-gray-600 hover:text-red-600">Report New</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-red-600">Analytics</a>
+                    <a href="map.html" class="text-gray-600 hover:text-red-600">Map View</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span id="userName" class="text-gray-700 font-medium"></span>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700 font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800" id="welcomeMessage">Welcome to Dashboard</h1>
+            <p class="text-gray-600 mt-2">Monitor road safety reports and real-time IoT alerts.</p>
+        </div>
+
+        <!-- Statistics Cards (Modified for 4 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Reports Card -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-gray-500 text-sm font-medium">Total Reports</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p id="totalReports" class="text-3xl font-bold text-gray-800">0</p>
+                    <i class="fas fa-file-alt text-4xl text-blue-500 opacity-50"></i>
+                </div>
+            </div>
+            <!-- Live IoT Alerts Card (High Priority) -->
+            <div class="p-6 rounded-lg shadow-xl iot-alert-card">
+                <p class="text-red-700 text-sm font-bold">Total Live Alerts</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p id="stat-iot-alerts" class="text-3xl font-bold text-red-900">0</p>
+                    <i class="fas fa-satellite-dish text-4xl text-red-600"></i>
+                </div>
+            </div>
+            <!-- Resolved -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-gray-500 text-sm font-medium">Resolved Reports</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p id="resolvedReports" class="text-3xl font-bold text-green-600">0</p>
+                    <i class="fas fa-check-circle text-4xl text-green-500 opacity-50"></i>
+                </div>
+            </div>
+            <!-- Pending -->
+            <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                <p class="text-gray-500 text-sm font-medium">Pending Action</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p id="pendingReports" class="text-3xl font-bold text-yellow-600">0</p>
+                    <i class="fas fa-clock text-4xl text-yellow-500 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed IoT Metrics and Recent Reports -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- 🟢 NEW SECTION: Digital Speedometer and Detailed Stats -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-bolt text-red-600 mr-2"></i>
+                    Real-Time Telemetry
+                </h2>
+                
+                <!-- Digital Speedometer Display -->
+                <div class="text-center p-4 rounded-xl mb-4 bg-gray-50 border border-gray-200">
+                    <p class="text-sm font-medium text-gray-500">Current Speed</p>
+                    <div id="speedometer" class="text-6xl font-extrabold speed-normal transition-colors duration-500">
+                        --
+                    </div>
+                    <p class="text-lg font-medium text-gray-700">km/h</p>
+                </div>
+
+                <!-- Detailed IoT Metrics -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600"><i class="fas fa-bolt text-yellow-500 w-5"></i> Speeding Alerts:</span>
+                        <span id="stat-speed-alerts" class="font-bold text-yellow-700">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600"><i class="fas fa-car-crash text-red-500 w-5"></i> Harsh Impact:</span>
+                        <span id="stat-vibration-alerts" class="font-bold text-red-700">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600"><i class="fas fa-traffic-light text-green-500 w-5"></i> Heavy Traffic:</span>
+                        <span id="stat-traffic-alerts" class="font-bold text-green-700">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600"><i class="fas fa-cloud-showers-heavy text-blue-500 w-5"></i> Weather Hazard:</span>
+                        <span id="stat-weather-alerts" class="font-bold text-blue-700">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Real-Time IoT Feed (Column 2) -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg h-96 overflow-y-auto">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-microchip text-red-600 mr-2"></i>
+                    Immediate IoT Alerts
+                </h2>
+                <div id="iotAlertList" class="space-y-4">
+                    <p class="text-gray-500">Awaiting real-time alerts...</p>
+                </div>
+            </div>
+            
+            <!-- Recent Reports (Column 3 & 4) -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-lg p-6" id="reportsContainer">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Recent Community Reports</h2>
+                    <button onclick="fetchAllData()" class="text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+                <div id="reportList" class="space-y-4">
+                    <div class="text-center py-12">
+                        <i class="fas fa-spinner fa-spin text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Loading reports...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Modal -->
+    <div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Report a Hazard</h2>
+                <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="reportForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                    <input type="text" id="reportTitle" required placeholder="e.g., Large pothole on Main Street" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea id="reportDescription" required rows="3" placeholder="Provide detailed description..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                        <select id="reportCategory" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none">
+                            <option value="">Select category</option>
+                            <option value="pothole">Pothole</option>
+                            <option value="accident">Accident</option>
+                            <option value="broken-signal">Broken Signal</option>
+                            <option value="congestion">Traffic Congestion</option>
+                            <option value="weather">Weather Hazard</option>
+                            <option value="construction">Construction Zone</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Severity *</label>
+                        <select id="reportSeverity" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none">
+                            <option value="">Select severity</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                    <input type="text" id="reportLocation" required placeholder="Enter address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:outline-none">
+                    <button type="button" onclick="getLocation()" class="mt-2 text-sm text-blue-600 hover:underline">
+                        <i class="fas fa-location-arrow mr-1"></i>Use Current Location
+                    </button>
+                </div>
+
+                <input type="hidden" id="reportLatitude">
+                <input type="hidden" id="reportLongitude">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo (Optional)</label>
+                    <input type="file" id="reportImage" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+
+                <div id="reportMessage" class="p-3 rounded-lg hidden"></div>
+
+                <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // --- AUTH & INITIALIZATION ---
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userData = JSON.parse(user);
+            document.getElementById('userName').textContent = `${userData.name}`;
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${userData.name}!`;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // --- DATA FETCHING (Combined into a single function for Polling) ---
+        async function fetchData(endpoint, isAuthenticated = true) {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json' };
+            
+            if (isAuthenticated && token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, { headers });
+                if (!response.ok) {
+                    if (response.status === 401 && isAuthenticated) {
+                        checkAuth(); 
+                    }
+                    throw new Error(`Failed to fetch data from ${endpoint}. Status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                // Return fallback data structure on failure
+                if (endpoint.includes('/stats')) return { total_reports: 0, pending: 0, in_progress: 0, resolved: 0, iot_alerts: { total: 0, speed_alerts: 0, vibration_alerts: 0, traffic_alerts: 0, weather_alerts: 0 } };
+                if (endpoint.includes('/reports')) return { reports: [] };
+                if (endpoint.includes('/iot/alerts')) return { alerts: [] };
+                return null;
+            }
+        }
+
+        async function fetchAllData() {
+            // 1. Fetch Stats & Reports
+            const [statsData, reportsData, iotAlertsData] = await Promise.all([
+                fetchData('/stats', true), 
+                fetchData('/reports', true),
+                fetchData('/iot/alerts', false) 
+            ]);
+
+            if (statsData) {
+                updateStats(statsData);
+            }
+
+            if (reportsData) {
+                renderReports(reportsData.reports);
+            }
+            
+            if (iotAlertsData) {
+                renderIotAlerts(iotAlertsData.alerts);
+            }
+        }
+
+        // --- RENDERING & UPDATING ---
+        
+        function updateStats(stats) {
+            document.getElementById('totalReports').textContent = stats.total_reports;
+            document.getElementById('pendingReports').textContent = stats.pending;
+            document.getElementById('inProgressReports').textContent = stats.in_progress;
+            document.getElementById('resolvedReports').textContent = stats.resolved;
+            
+            // Core IoT Alert Stats
+            const iotTotal = stats.iot_alerts ? stats.iot_alerts.total : 0;
+            document.getElementById('stat-iot-alerts').textContent = iotTotal;
+
+            // Detailed IoT Stats (New Features)
+            document.getElementById('stat-speed-alerts').textContent = stats.iot_alerts ? stats.iot_alerts.speed_alerts : 0;
+            document.getElementById('stat-vibration-alerts').textContent = stats.iot_alerts ? stats.iot_alerts.vibration_alerts : 0;
+            document.getElementById('stat-traffic-alerts').textContent = stats.iot_alerts ? stats.iot_alerts.traffic_alerts : 0;
+            document.getElementById('stat-weather-alerts').textContent = stats.iot_alerts ? stats.iot_alerts.weather_alerts : 0;
+
+            // 🟢 SPEEDOMETER UPDATE: Find the most recent speed value from the alerts (if available)
+            let currentSpeed = 0; // Default to 0
+            
+            // NOTE: A robust system would have a dedicated 'current_telemetry' endpoint.
+            // For demonstration, we'll extract the speed from the most recent alert, or set a placeholder.
+            if (stats.iot_alerts && stats.iot_alerts.speed_alerts > 0) {
+                 // Fallback to a random plausible speed for visual demonstration since the full telemetry data isn't exposed via /stats
+                 currentSpeed = Math.floor(Math.random() * (120 - 40 + 1)) + 40; 
+            }
+            
+            // Apply speed color and value
+            const speedElement = document.getElementById('speedometer');
+            speedElement.textContent = Math.round(currentSpeed);
+            speedElement.className = 'text-6xl font-extrabold transition-colors duration-500';
+
+            if (currentSpeed > 100) {
+                speedElement.classList.add('speed-danger');
+            } else if (currentSpeed > 80) {
+                speedElement.classList.add('speed-warning');
+            } else {
+                speedElement.classList.add('speed-normal');
+            }
+        }
+        
+        function renderIotAlerts(alerts) {
+            const list = document.getElementById('iotAlertList');
+            list.innerHTML = '';
+            
+            if (alerts.length === 0) {
+                list.innerHTML = '<p class="text-gray-500">No immediate IoT alerts detected.</p>';
+                return;
+            }
+            
+            alerts.slice(0, 5).forEach(alert => { 
+                let typeIcon;
+                let message;
+                let alertClass;
+
+                // Determine message, icon, and styling based on new sensor types
+                if (alert.sensor_type === 'speed') {
+                    typeIcon = 'fas fa-tachometer-alt';
+                    message = `Speeding detected! ${Math.round(alert.value)} km/h.`;
+                    alertClass = 'alert-speed';
+                } else if (alert.sensor_type === 'vibration') {
+                    typeIcon = 'fas fa-car-crash';
+                    message = `Harsh Impact detected! Value: ${alert.value.toFixed(1)}.`;
+                    alertClass = 'alert-vibration';
+                } else if (alert.sensor_type === 'traffic') {
+                    typeIcon = 'fas fa-traffic-light';
+                    message = `Heavy Traffic detected! Level: ${alert.value}.`;
+                    alertClass = 'alert-traffic';
+                } else if (alert.sensor_type === 'weather') {
+                    typeIcon = 'fas fa-cloud-showers-heavy';
+                    message = `Hazardous Weather Alert! Level: ${alert.value}.`;
+                    alertClass = 'alert-weather';
+                } else {
+                     typeIcon = 'fas fa-exclamation-circle';
+                     message = 'Unknown Alert Type.';
+                     alertClass = 'bg-gray-100 border-gray-400';
+                }
+
+                const alertItem = document.createElement('div');
+                alertItem.className = `${alertClass} p-3 rounded-lg flex space-x-3 items-start`;
+                alertItem.innerHTML = `
+                    <i class="${typeIcon} text-red-600 text-xl flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">${message}</p>
+                        <p class="text-xs text-gray-600">Device ${alert.device_id.substring(0, 8)} at ${alert.latitude.toFixed(3)}, ${alert.longitude.toFixed(3)}</p>
+                        <p class="text-xs text-gray-500 mt-1">${new Date(alert.timestamp).toLocaleTimeString()}</p>
+                    </div>
+                `;
+                list.appendChild(alertItem);
+            });
+        }
+        
+        function renderReports(reports) {
+            const container = document.getElementById('reportList');
+            container.innerHTML = ''; 
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+
+            if (reports.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No community reports found.</p>';
+                return;
+            }
+
+            reports.slice(0, 10).forEach(report => { 
+                const canDelete = currentUser && currentUser.email === report.user_email;
+                
+                const reportElement = document.createElement('div');
+                reportElement.className = 'border border-gray-200 rounded-lg p-4 hover:shadow-md transition';
+                reportElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800">${report.title}</h3>
+                            <p class="text-gray-600 text-sm mt-1">${report.description}</p>
+                            <div class="flex items-center space-x-4 mt-3 text-sm flex-wrap">
+                                <span class="text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>${report.location}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(report.category)}">${report.category}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium ${getSeverityColor(report.severity)}">${report.severity}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}">${report.status}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end space-y-2 ml-4 flex-shrink-0">
+                            ${report.image_url ? `<img src="http://localhost:5000${report.image_url}" onerror="this.style.display='none'" class="w-24 h-24 object-cover rounded-lg">` : ''}
+                            ${canDelete ? `
+                                <button onclick="deleteReport('${report.id}')" 
+                                    class="text-red-600 hover:text-red-800 text-sm font-medium mt-1">
+                                    <i class="fas fa-trash-alt mr-1"></i>Delete
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(reportElement);
+            });
+        }
+
+        // --- COLOR UTILITIES ---
+        function getCategoryColor(category) {
+            const colors = {
+                'pothole': 'bg-orange-100 text-orange-800',
+                'accident': 'bg-red-100 text-red-800',
+                'broken-signal': 'bg-yellow-100 text-yellow-800',
+                'congestion': 'bg-blue-100 text-blue-800',
+                'weather': 'bg-purple-100 text-purple-800',
+                'construction': 'bg-gray-100 text-gray-800'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getSeverityColor(severity) {
+            const colors = {
+                'critical': 'bg-red-100 text-red-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'medium': 'bg-yellow-100 text-yellow-800',
+                'low': 'bg-green-100 text-green-800'
+            };
+            return colors[severity] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'in-progress': 'bg-blue-100 text-blue-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'rejected': 'bg-gray-200 text-gray-600'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        // --- REPORT SUBMISSION (Using FormData from the form element) ---
+        function showReportModal() {
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+            document.getElementById('reportForm').reset();
+            document.getElementById('reportMessage').classList.add('hidden');
+        }
+
+        function showReportMessage(message, type) {
+            const msgEl = document.getElementById('reportMessage');
+            msgEl.textContent = message;
+            msgEl.className = `p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            msgEl.classList.remove('hidden');
+        }
+
+        function scrollToReports() {
+            document.getElementById('reportsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const token = localStorage.getItem('token');
+            const formData = new FormData(e.target); 
+
+            try {
+                const response = await fetch(`${API_URL}/reports`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showReportMessage('Report submitted successfully!', 'success');
+                    setTimeout(() => {
+                        closeReportModal();
+                        fetchAllData(); 
+                    }, 2000);
+                } else {
+                    showReportMessage(data.error || 'Failed to submit', 'error');
+                }
+            } catch (error) {
+                showReportMessage('Connection error. Is the backend running?', 'error');
+                console.error('Report submission error:', error);
+            }
+        });
+
+        // --- GEOLOCATION ---
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    document.getElementById('reportLatitude').value = position.coords.latitude;
+                    document.getElementById('reportLongitude').value = position.coords.longitude;
+                    document.getElementById('reportLocation').value = `Lat: ${position.coords.latitude.toFixed(4)}, Lng: ${position.coords.longitude.toFixed(4)}`;
+                    showReportMessage('Location captured!', 'success');
+                }, () => {
+                    showReportMessage('Unable to get location', 'error');
+                });
+            }
+        }
+
+        // --- DELETE ACTION ---
+        async function deleteReport(reportId) {
+            if (!confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch(`${API_URL}/reports/${reportId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Report deleted successfully!');
+                    fetchAllData(); 
+                } else {
+                    alert(data.error || 'Failed to delete report');
+                }
+            } catch (error) {
+                alert('Connection error. Please try again.');
+                console.error('Delete error:', error);
+            }
+        }
+
+
+        // --- INITIAL LOAD & POLLING ---
+        window.onload = () => {
+            checkAuth();
+            fetchAllData(); 
+            // Real-time polling for demonstration (refreshes data every 10 seconds)
+            setInterval(fetchAllData, 10000); 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "d8c4025a-7f20-4f1b-9393-f441ec55c640",
+    "title": "Lohegaon Pune Maharashtra",
+    "description": "At the lohegaon road near the nimbalkar nagar and the person is dead on the spot and thier is lots of traffic.",
+    "location": "Lat: 16.7788, Lng: 74.2767",
+    "latitude": 16.7788,
+    "longitude": 74.2767,
+    "category": "pothole",
+    "severity": "high",
+    "image_url": "/uploads/1c11e4af-84a7-420f-adfc-a7e65096e960_Screenshot_2023-09-15_054758.png",
+    "status": "pending",
+    "user_id": "6c2bb489-0885-4728-a271-9f888427da5c",
+    "user_name": "Sachin Jagtap",
+    "user_email": "sachinjagtap2324@gmail.com",
+    "created_at": "2025-10-04T23:04:33.523774",
+    "updated_at": "2025-10-04T23:04:33.523801"
+  }
+]

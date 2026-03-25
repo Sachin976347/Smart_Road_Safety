@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Reports - Smart Road Safety</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-road text-red-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-800">Smart Road Safety</span>
+                    </div>
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">Dashboard</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-red-600">Analytics</a>
+                    <a href="reports.html" class="text-red-600 font-semibold">All Reports</a>
+                    <a href="map.html" class="text-gray-600 hover:text-red-600">Map View</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <span id="userName" class="text-gray-700"></span>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">All Reports</h1>
+            <button onclick="showReportModal()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-semibold">
+                <i class="fas fa-plus mr-2"></i>New Report
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-bold mb-4">Filters</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="filterStatus" onchange="filterReports()" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select id="filterCategory" onchange="filterReports()" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">All Categories</option>
+                        <option value="pothole">Pothole</option>
+                        <option value="accident">Accident</option>
+                        <option value="broken-signal">Broken Signal</option>
+                        <option value="congestion">Traffic Congestion</option>
+                        <option value="weather">Weather Hazard</option>
+                        <option value="construction">Construction</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                    <select id="filterSeverity" onchange="filterReports()" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        <option value="">All Severity</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" id="searchQuery" onkeyup="filterReports()" placeholder="Search by title..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <button onclick="clearFilters()" class="mt-4 text-sm text-blue-600 hover:underline">
+                <i class="fas fa-times mr-1"></i>Clear All Filters
+            </button>
+        </div>
+
+        <!-- Reports Count -->
+        <div class="mb-4 flex justify-between items-center">
+            <p class="text-gray-600">Showing <span id="reportCount" class="font-semibold">0</span> reports</p>
+            <button onclick="loadReports()" class="text-blue-600 hover:text-blue-700">
+                <i class="fas fa-sync-alt mr-1"></i>Refresh
+            </button>
+        </div>
+
+        <!-- Reports Grid -->
+        <div id="reportsGrid" class="space-y-4">
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">Loading reports...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-12">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <p class="text-xl text-gray-500 mb-2">No reports found</p>
+            <p class="text-gray-400">Try adjusting your filters</p>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div id="reportDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-lg p-8 max-w-3xl w-full mx-4 my-8">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-2xl font-bold" id="detailTitle">Report Details</h2>
+                <button onclick="closeDetailModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="reportDetailContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Report a Hazard</h2>
+                <button onclick="closeReportModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="reportForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                    <input type="text" id="reportTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea id="reportDescription" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                        <select id="reportCategory" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600">
+                            <option value="">Select category</option>
+                            <option value="pothole">Pothole</option>
+                            <option value="accident">Accident</option>
+                            <option value="broken-signal">Broken Signal</option>
+                            <option value="congestion">Traffic Congestion</option>
+                            <option value="weather">Weather Hazard</option>
+                            <option value="construction">Construction Zone</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Severity *</label>
+                        <select id="reportSeverity" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600">
+                            <option value="">Select severity</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                    <input type="text" id="reportLocation" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600">
+                    <button type="button" onclick="getLocation()" class="mt-2 text-sm text-blue-600 hover:underline">
+                        <i class="fas fa-location-arrow mr-1"></i>Use Current Location
+                    </button>
+                </div>
+
+                <input type="hidden" id="reportLatitude">
+                <input type="hidden" id="reportLongitude">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photo</label>
+                    <input type="file" id="reportImage" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                </div>
+
+                <div id="reportMessage" class="p-3 rounded-lg hidden"></div>
+
+                <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let allReports = [];
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const userData = JSON.parse(user);
+            document.getElementById('userName').textContent = `${userData.name}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        async function loadReports() {
+            try {
+                const response = await fetch(`${API_URL}/reports`);
+                const data = await response.json();
+                allReports = data.reports;
+                filterReports();
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                document.getElementById('reportsGrid').innerHTML = '<p class="text-red-500 text-center py-8">Error loading reports</p>';
+            }
+        }
+
+        function filterReports() {
+            const statusFilter = document.getElementById('filterStatus').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value.toLowerCase();
+            const severityFilter = document.getElementById('filterSeverity').value.toLowerCase();
+            const searchQuery = document.getElementById('searchQuery').value.toLowerCase();
+
+            let filtered = allReports.filter(report => {
+                const matchStatus = !statusFilter || report.status.toLowerCase() === statusFilter;
+                const matchCategory = !categoryFilter || report.category.toLowerCase() === categoryFilter;
+                const matchSeverity = !severityFilter || report.severity.toLowerCase() === severityFilter;
+                const matchSearch = !searchQuery || 
+                    report.title.toLowerCase().includes(searchQuery) || 
+                    report.description.toLowerCase().includes(searchQuery) ||
+                    report.location.toLowerCase().includes(searchQuery);
+
+                return matchStatus && matchCategory && matchSeverity && matchSearch;
+            });
+
+            displayReports(filtered);
+        }
+
+        function displayReports(reports) {
+            const grid = document.getElementById('reportsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countEl = document.getElementById('reportCount');
+
+            countEl.textContent = reports.length;
+
+            if (reports.length === 0) {
+                grid.innerHTML = '';
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = reports.map(report => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition cursor-pointer" onclick="showReportDetail('${report.id}')">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">${report.title}</h3>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${getSeverityColor(report.severity)}">${report.severity.toUpperCase()}</span>
+                            </div>
+                            <p class="text-gray-600 mb-3">${report.description}</p>
+                            <div class="flex flex-wrap items-center gap-3 text-sm">
+                                <span class="text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>${report.location}
+                                </span>
+                                <span class="px-3 py-1 rounded-full ${getCategoryColor(report.category)}">${report.category}</span>
+                                <span class="px-3 py-1 rounded-full ${getStatusColor(report.status)}">${report.status}</span>
+                                <span class="text-gray-400">
+                                    <i class="fas fa-user mr-1"></i>${report.user_name}
+                                </span>
+                                <span class="text-gray-400">
+                                    <i class="fas fa-clock mr-1"></i>${formatDate(report.created_at)}
+                                </span>
+                            </div>
+                        </div>
+                        ${report.image_url ? `
+                            <img src="http://localhost:5000${report.image_url}" 
+                                 class="w-32 h-32 object-cover rounded-lg ml-6 shadow-md" 
+                                 alt="${report.title}">
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        function displayReports(reports) {
+    const grid = document.getElementById('reportsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const countEl = document.getElementById('reportCount');
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+
+    countEl.textContent = reports.length;
+
+    if (reports.length === 0) {
+        grid.innerHTML = '';
+        grid.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    grid.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+
+    grid.innerHTML = reports.map(report => {
+        const canDelete = currentUser.email === report.user_email;
+        
+        return `
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start">
+                <div class="flex-1 cursor-pointer" onclick="showReportDetail('${report.id}')">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h3 class="text-xl font-bold text-gray-800">${report.title}</h3>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${getSeverityColor(report.severity)}">${report.severity.toUpperCase()}</span>
+                    </div>
+                    <p class="text-gray-600 mb-3">${report.description}</p>
+                    <div class="flex flex-wrap items-center gap-3 text-sm">
+                        <span class="text-gray-500">
+                            <i class="fas fa-map-marker-alt mr-1"></i>${report.location}
+                        </span>
+                        <span class="px-3 py-1 rounded-full ${getCategoryColor(report.category)}">${report.category}</span>
+                        <span class="px-3 py-1 rounded-full ${getStatusColor(report.status)}">${report.status}</span>
+                        <span class="text-gray-400">
+                            <i class="fas fa-user mr-1"></i>${report.user_name}
+                        </span>
+                        <span class="text-gray-400">
+                            <i class="fas fa-clock mr-1"></i>${formatDate(report.created_at)}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end space-y-2 ml-6">
+                    ${report.image_url ? `
+                        <img src="http://localhost:5000${report.image_url}" 
+                             class="w-32 h-32 object-cover rounded-lg shadow-md" 
+                             alt="${report.title}">
+                    ` : ''}
+                    ${canDelete ? `
+                        <button onclick="event.stopPropagation(); deleteReport('${report.id}')" 
+                                class="text-red-600 hover:text-red-800 text-sm font-medium px-3 py-1 rounded border border-red-600 hover:bg-red-50">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    }).join('');
+}
+async function deleteReport(reportId) {
+    if (!confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(`${API_URL}/reports/${reportId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('Report deleted successfully!');
+            loadReports();
+        } else {
+            alert(data.error || 'Failed to delete report');
+        }
+    } catch (error) {
+        alert('Connection error. Please try again.');
+        console.error('Delete error:', error);
+    }
+}
+
+        function showReportDetail(reportId) {
+            const report = allReports.find(r => r.id === reportId);
+            if (!report) return;
+
+            const modal = document.getElementById('reportDetailModal');
+            const content = document.getElementById('reportDetailContent');
+
+            content.innerHTML = `
+                <div class="space-y-4">
+                    ${report.image_url ? `
+                        <img src="http://localhost:5000${report.image_url}" 
+                             class="w-full h-64 object-cover rounded-lg shadow-lg mb-4" 
+                             alt="${report.title}">
+                    ` : ''}
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">${report.title}</h3>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold ${getSeverityColor(report.severity)}">${report.severity}</span>
+                            <span class="px-3 py-1 rounded-full text-sm ${getCategoryColor(report.category)}">${report.category}</span>
+                            <span class="px-3 py-1 rounded-full text-sm ${getStatusColor(report.status)}">${report.status}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-700 mb-2">Description</h4>
+                        <p class="text-gray-600">${report.description}</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-gray-700 mb-2">Location</h4>
+                        <p class="text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>${report.location}
+                        </p>
+                        ${report.latitude && report.longitude ? `
+                            <p class="text-sm text-gray-500 mt-1">
+                                Coordinates: ${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}
+                            </p>
+                        ` : ''}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Reported By</h4>
+                            <p class="text-gray-600">${report.user_name}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Date</h4>
+                            <p class="text-gray-600">${formatDate(report.created_at)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('reportDetailModal').classList.add('hidden');
+        }
+
+        function clearFilters() {
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterSeverity').value = '';
+            document.getElementById('searchQuery').value = '';
+            filterReports();
+        }
+
+        function showReportModal() {
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+            document.getElementById('reportForm').reset();
+            document.getElementById('reportMessage').classList.add('hidden');
+        }
+
+        function showReportMessage(message, type) {
+            const msgEl = document.getElementById('reportMessage');
+            msgEl.textContent = message;
+            msgEl.className = `p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            msgEl.classList.remove('hidden');
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    document.getElementById('reportLatitude').value = position.coords.latitude;
+                    document.getElementById('reportLongitude').value = position.coords.longitude;
+                    document.getElementById('reportLocation').value = `Lat: ${position.coords.latitude.toFixed(4)}, Lng: ${position.coords.longitude.toFixed(4)}`;
+                    showReportMessage('Location captured!', 'success');
+                });
+            }
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+
+            formData.append('title', document.getElementById('reportTitle').value);
+            formData.append('description', document.getElementById('reportDescription').value);
+            formData.append('category', document.getElementById('reportCategory').value);
+            formData.append('severity', document.getElementById('reportSeverity').value);
+            formData.append('location', document.getElementById('reportLocation').value);
+            formData.append('latitude', document.getElementById('reportLatitude').value || '0');
+            formData.append('longitude', document.getElementById('reportLongitude').value || '0');
+
+            const imageFile = document.getElementById('reportImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/reports`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showReportMessage('Report submitted successfully!', 'success');
+                    setTimeout(() => {
+                        closeReportModal();
+                        loadReports();
+                    }, 2000);
+                } else {
+                    showReportMessage(data.error || 'Failed to submit', 'error');
+                }
+            } catch (error) {
+                showReportMessage('Connection error', 'error');
+            }
+        });
+
+        function getCategoryColor(category) {
+            const colors = {
+                'pothole': 'bg-orange-100 text-orange-800',
+                'accident': 'bg-red-100 text-red-800',
+                'broken-signal': 'bg-yellow-100 text-yellow-800',
+                'congestion': 'bg-blue-100 text-blue-800',
+                'weather': 'bg-purple-100 text-purple-800',
+                'construction': 'bg-gray-100 text-gray-800'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getSeverityColor(severity) {
+            const colors = {
+                'critical': 'bg-red-100 text-red-800',
+                'high': 'bg-orange-100 text-orange-800',
+                'medium': 'bg-yellow-100 text-yellow-800',
+                'low': 'bg-green-100 text-green-800'
+            };
+            return colors[severity] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'in-progress': 'bg-blue-100 text-blue-800',
+                'resolved': 'bg-green-100 text-green-800',
+                'rejected': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        checkAuth();
+        loadReports();
+
+        setInterval(loadReports, 30000);
+    </script>
+</body>
+</html>

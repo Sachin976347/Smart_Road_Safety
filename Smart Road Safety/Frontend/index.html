@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Road Safety - Saving Lives Through Technology</title>
+    <link rel="icon" type="image/png" href="/favicon.png"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom Styles */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .pulse-ring { animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hero Background uses Flask endpoint to fetch the image */
+        .hero-bg {
+            background-image: url('http://localhost:5000/uploads/hero_image.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-color: #DC2626; 
+        }
+
+        /* Video Glow for Demo Section */
+        .video-glow {
+            box-shadow: 0 0 50px rgba(220, 38, 38, 0.5); 
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white/95 backdrop-blur-md shadow-lg fixed w-full top-0 z-50 border-b border-red-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <i class="fas fa-road text-red-600 text-3xl"></i>
+                        <div class="absolute inset-0 bg-red-600 rounded-full opacity-20 pulse-ring"></div>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold text-gray-900">Smart Road Safety</span>
+                        <p class="text-xs text-gray-500">Powered by Community</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                     <a href="/Frontend/index.html" class="text-red-600 font-semibold">Home</a>
+                    <a href="#features" class="text-gray-700 hover:text-red-600 font-medium transition">Features</a>
+                    <a href="#video-demo" class="text-gray-700 hover:text-red-600 font-medium transition">Demo</a>
+                    <a href="reports.html" class="text-gray-700 hover:text-red-600 font-medium transition">Report</a>
+                    <a href="dashboard.html" class="text-gray-700 hover:text-red-600 font-medium transition">Dashboard</a>
+                    <button onclick="showAuthModal('login')" class="bg-white border-2 border-red-600 text-red-600 px-6 py-2 rounded-full hover:bg-red-50 font-semibold transition">
+                        Login
+                    </button>
+                    <button onclick="showAuthModal('register')" class="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 rounded-full hover:from-red-700 hover:to-red-800 font-semibold transition shadow-lg">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="inline-flex items-center bg-red-100 text-red-700 px-4 py-2 rounded-full mb-6 text-sm font-semibold">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        A major global problem, solved with local action.
+                    </div>
+                    <h1 class="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+                        Crowdsourcing <span class="gradient-text">Road Safety</span> <br/>One Report at a Time
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                        Join thousands making roads safer through real-time reporting, AI-powered alerts, and community collaboration to save lives.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="showAuthModal('register')" class="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-red-700 hover:to-red-800 transition shadow-xl transform hover:scale-105">
+                            Start Reporting Now
+                            <i class="fas fa-hand-point-up ml-2"></i>
+                        </button>
+                        <button onclick="document.getElementById('video-demo').scrollIntoView({behavior: 'smooth'})" class="bg-white text-gray-800 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-50 transition shadow-lg border-2 border-gray-200">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Watch Demo
+                        </button>
+                    </div>
+                </div>
+                <!-- Image Container now uses the local path from Flask -->
+                <div class="relative w-full h-80 rounded-3xl shadow-2xl overflow-hidden hero-bg">
+                     <div class="absolute inset-0 bg-gray-900 opacity-40"></div>
+                     <div class="absolute inset-0 flex items-center justify-center">
+                         <p class="relative z-10 text-white text-2xl font-bold p-4 bg-black/30 rounded-lg">Real-Time Road View</p>
+                     </div>
+                    <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-2xl border-l-4 border-red-500">
+                        <p class="text-2xl font-bold text-red-600">50K+</p>
+                        <p class="text-sm text-gray-600">Hazards Reported</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section (Impact) -->
+    <section id="stats" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-4">Driving Real-World Impact</h2>
+            <p class="text-xl text-gray-600 text-center mb-12">Numbers that define the crisis and the solution</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Stat Card 1 -->
+                <div class="text-center p-8 bg-red-50 rounded-xl hover-lift">
+                    <i class="fas fa-users text-red-600 text-4xl mb-4"></i>
+                    <div class="text-5xl font-bold text-red-700 mb-2">10K+</div>
+                    <p class="text-gray-700 font-semibold">Active Users</p>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="text-center p-8 bg-red-50 rounded-xl hover-lift">
+                    <i class="fas fa-exclamation-circle text-red-600 text-4xl mb-4"></i>
+                    <div class="text-5xl font-bold text-red-700 mb-2">67%</div>
+                    <p class="text-gray-700 font-semibold">Accidents from Overspeeding</p>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="text-center p-8 bg-red-50 rounded-xl hover-lift">
+                    <i class="fas fa-check-circle text-red-600 text-4xl mb-4"></i>
+                    <div class="text-5xl font-bold text-red-700 mb-2">85%</div>
+                    <p class="text-gray-700 font-semibold">Report Resolution Rate</p>
+                </div>
+                <!-- Stat Card 4 -->
+                <div class="text-center p-8 bg-red-50 rounded-xl hover-lift">
+                    <i class="fas fa-map-marker-alt text-red-600 text-4xl mb-4"></i>
+                    <div class="text-5xl font-bold text-red-700 mb-2">100+</div>
+                    <p class="text-gray-700 font-semibold">Hotspots Identified</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12">Technology That Saves Lives</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature Card 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover-lift border border-red-100">
+                    <div class="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-xl">
+                        <i class="fas fa-car-crash text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Instant Crash Detection</h3>
+                    <p class="text-gray-600">Automatic detection of severe accidents with immediate alert to emergency services and nearest users.</p>
+                </div>
+                <!-- Feature Card 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover-lift border border-red-100">
+                    <div class="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-xl">
+                        <i class="fas fa-mobile-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Hyper-Local Alerts</h3>
+                    <p class="text-gray-600">Receive warnings not just for your route, but for your immediate vicinity based on community reports.</p>
+                </div>
+                <!-- Feature Card 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover-lift border border-red-100">
+                    <div class="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-6 shadow-xl">
+                        <i class="fas fa-layer-group text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Integrated Reporting</h3>
+                    <p class="text-gray-600">Directly submit reports to local road authorities, police, and verified maintenance teams in one click.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video Section -->
+    <section id="video-demo" class="py-20 bg-gray-900 text-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold mb-6">Watch the Smart Road Safety Demo</h2>
+            <p class="text-xl text-gray-300 mb-12">See how easy it is to report hazards and receive life-saving alerts.</p>
+            <div class="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+                <div class="aspect-video w-full">
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        class="w-full h-full video-glow" 
+                        title="Road Safety Demo Video"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="py-20 bg-gradient-to-r from-red-700 to-red-800 text-white relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Your Report is a Life Saved.</h2>
+            <p class="text-xl mb-10 text-red-100">Contribute to a safer future for every driver and pedestrian.</p>
+            <button onclick="showAuthModal('register')" class="bg-white text-red-600 px-10 py-5 rounded-full text-xl font-bold hover:bg-gray-100 transition shadow-2xl transform hover:scale-105">
+                Sign Up and Report
+                <i class="fas fa-plus-circle ml-3"></i>
+            </button>
+            <p class="mt-6 text-red-100 text-sm">Takes less than 30 seconds to join and start contributing.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4">Smart Road Safety</h3>
+                    <p class="text-sm">Making roads safer through technology and community collaboration.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Navigation</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="hover:text-white">Features</a></li>
+                        <li><a href="#stats" class="hover:text-white">Impact</a></li>
+                        <li><a href="reports.html" class="hover:text-white">New Report</a></li>
+                        <li><a href="dashboard.html" class="hover:text-white">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-gray-800 w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-sm">
+                <p>&copy; 2025 Smart Road Safety. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Kept functional logic) -->
+    <div id="authModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modalTitle" class="text-2xl font-bold">Login</h2>
+                <button onclick="closeAuthModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                    Login
+                </button>
+                <p class="text-center text-sm text-gray-600">
+                    Don't have an account? 
+                    <a href="#" onclick="showAuthModal('register')" class="text-red-600 hover:underline">Sign up</a>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input type="text" id="registerName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="registerEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input type="tel" id="registerPhone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="registerPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                    Sign Up
+                </button>
+                <p class="text-center text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="#" onclick="showAuthModal('login')" class="text-red-600 hover:underline">Login</a>
+                </p>
+            </form>
+
+            <div id="authMessage" class="mt-4 p-3 rounded-lg hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Show/Hide Auth Modal
+        function showAuthModal(type) {
+            const modal = document.getElementById('authModal');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const modalTitle = document.getElementById('modalTitle');
+
+            modal.classList.remove('hidden');
+
+            if (type === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                modalTitle.textContent = 'Welcome Back';
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                modalTitle.textContent = 'Create Your Safety Account';
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('authMessage').classList.add('hidden');
+        }
+
+        function showMessage(message, type) {
+            const msgEl = document.getElementById('authMessage');
+            msgEl.textContent = message;
+            msgEl.className = `mt-4 p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            msgEl.classList.remove('hidden');
+        }
+
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showMessage(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Connection error. Make sure backend is running on port 5000!', 'error');
+            }
+        });
+
+        // Handle Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showMessage('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showMessage(data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Connection error. Make sure backend is running on port 5000!', 'error');
+            }
+        });
+
+        // Check API health on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (!response.ok) {
+                    console.error('Backend not responding');
+                }
+            } catch (error) {
+                console.error('Backend connection error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
